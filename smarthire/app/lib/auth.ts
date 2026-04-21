@@ -66,28 +66,31 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     async signIn({ user, account }) {
-      try {
-        if (account?.provider === "google") {
-          const existing = await prisma.user.findUnique({
-            where: { email: user.email! },
-          })
+  try {
+    if (account?.provider === "google") {
+      if (!user.email) return false
 
-          if (!existing) {
-            await prisma.user.create({
-              data: {
-                name: user.name ?? "Google User",
-                email: user.email!,
-                role: "seeker",
-              },
-            })
-          }
-        }
-        return true
-      } catch (err) {
-        console.error("SIGNIN ERROR:", err)
-        return false
-      }
-    },
+      // Retry upsert instead of find+create to avoid race condition
+      await prisma.user.upsert({
+        where: { email: user.email },
+        update: {
+          name: user.name ?? undefined,
+        },
+        create: {
+          name: user.name ?? "Google User",
+          email: user.email,
+          role: "seeker",
+        },
+      })
+    }
+    return true
+  } catch (err) {
+    console.error("SIGNIN ERROR:", err)
+    // ✅ Return false only on real errors, not timeouts
+    // Returning "/login" string causes NextAuth to redirect there explicitly
+    return "/login?error=DatabaseError"
+  }
+},
 
     async jwt({ token, user, account }) {
       // Credentials login — role is on user object directly
