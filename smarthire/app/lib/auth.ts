@@ -38,48 +38,38 @@ export const authOptions: NextAuthOptions = {
       },
 
       async authorize(credentials) {
-        try {
-          if (!credentials?.email || !credentials?.password) {
-            throw new Error("MISSING_CREDENTIALS")
-          }
+  try {
+    if (!credentials?.email || !credentials?.password) {
+      throw new Error("MISSING_CREDENTIALS")
+    }
 
-          const email = credentials.email.toLowerCase()
+    const email = credentials.email.toLowerCase()
+    const user = await getUserWithRetry(email)
 
-          // 🔁 use retry instead of single call
-          const user = await getUserWithRetry(email)
+    if (!user) throw new Error("USER_NOT_FOUND")
+    if (!user.password) throw new Error("NO_PASSWORD_SET")
 
-          if (!user) {
-            throw new Error("USER_NOT_FOUND")
-          }
+    const isValid = await bcrypt.compare(credentials.password, user.password)
+    if (!isValid) throw new Error("INVALID_PASSWORD")
 
-          if (!user.password) {
-            throw new Error("NO_PASSWORD_SET")
-          }
+    // ✅ ADD THIS
+    console.log("AUTHORIZE RESULT:", {
+      id: user.id,
+      role: user.role,
+      email: user.email,
+    })
 
-          const isValid = await bcrypt.compare(
-            credentials.password,
-            user.password
-          )
-
-          if (!isValid) {
-            throw new Error("INVALID_PASSWORD")
-          }
-
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-          }
-
-        } catch (err) {
-          console.error("AUTH ERROR:", err)
-
-          // ⚠️ Important:
-          // return null ONLY for real auth failures
-          return null
-        }
-      },
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    }
+  } catch (err) {
+    console.error("AUTH ERROR:", err)
+    return null
+  }
+},
     }),
   ],
 
