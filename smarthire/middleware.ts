@@ -9,7 +9,6 @@ export async function middleware(req: NextRequest) {
 
   const { pathname } = req.nextUrl
 
-  // Allow public routes
   if (
     pathname.startsWith("/login") ||
     pathname.startsWith("/api/auth") ||
@@ -19,12 +18,18 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
-  // Protect dashboard routes only
   if (pathname.startsWith("/dashboard")) {
     if (!token) {
       const loginUrl = new URL("/login", req.url)
       loginUrl.searchParams.set("callbackUrl", pathname)
       return NextResponse.redirect(loginUrl)
+    }
+
+    // ✅ Handle role redirect in middleware — avoids client-side loop
+    if (pathname === "/dashboard") {
+      const role = token.role as string | undefined
+      const dest = role === "recruiter" ? "/dashboard/recruiter" : "/dashboard/seeker"
+      return NextResponse.redirect(new URL(dest, req.url))
     }
   }
 
@@ -32,5 +37,6 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  // ✅ Now catches "/dashboard" exactly AND all sub-paths
+  matcher: ["/dashboard", "/dashboard/:path*"],
 }

@@ -1,23 +1,29 @@
 'use client'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 export default function DashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const hasRedirected = useRef(false)  // ✅ prevents duplicate pushes
 
   useEffect(() => {
     if (status === 'loading') return
-    if (status === 'unauthenticated') { router.push('/login'); return }
-    
-    const role = session?.user?.role
-    if (role === 'recruiter') {
-      router.push('/dashboard/recruiter')
-    } else {
-      router.push('/dashboard/seeker')
+    if (hasRedirected.current) return  // ✅ already fired, bail out
+
+    if (status === 'unauthenticated') {
+      hasRedirected.current = true
+      router.push('/login')
+      return
     }
-  }, [session, status, router])
+
+    if (status === 'authenticated' && session?.user) {
+      hasRedirected.current = true
+      const role = session.user.role
+      router.push(role === 'recruiter' ? '/dashboard/recruiter' : '/dashboard/seeker')
+    }
+  }, [status, session?.user, router])  // ✅ depend on session.user, not whole session
 
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
