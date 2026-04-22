@@ -112,19 +112,6 @@ export const authOptions: NextAuthOptions = {
         }
         return token
       }
-
-      // Safety net — role missing on subsequent requests
-      if (!token.role && token.email) {
-        const dbUser = await prisma.user.findUnique({
-          where: { email: token.email as string },
-          select: { id: true, role: true },
-        })
-        if (dbUser) {
-          token.id = dbUser.id
-          token.role = dbUser.role
-        }
-      }
-
       return token
     },
 
