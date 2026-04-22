@@ -112,8 +112,20 @@ export const authOptions: NextAuthOptions = {
         }
         return token
       }
+
+      if (token.id) {
+    const exists = await prisma.user.findUnique({
+      where: { id: token.id as string },
+      select: { id: true },
+    })
+    if (!exists) {
+      // Force logout by clearing the token
+      return {}
+    }
+  }
       return token
     },
+    
 
     async session({ session, token }) {
       if (token) {
