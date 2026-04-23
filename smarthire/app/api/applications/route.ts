@@ -33,6 +33,8 @@ async function getMatchScore(resumePath: string, jobDescription: string): Promis
     form.append("resume", blob, "resume.pdf")
     form.append("job_description", jobDescription)
 
+    console.log("ENV CHECK:", process.env.PYTHON_SERVICE_URL)
+
     const scoreRes = await fetch(`${process.env.PYTHON_SERVICE_URL}/score`, {
       method: "POST",
       body: form,
