@@ -66,66 +66,77 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     async signIn({ user, account }) {
-  try {
-    if (account?.provider === "google") {
-      if (!user.email) return false
+      try {
+        if (account?.provider === "google") {
+          if (!user.email) return false
 
-      // Retry upsert instead of find+create to avoid race condition
-      await prisma.user.upsert({
-        where: { email: user.email },
-        update: {
-          name: user.name ?? undefined,
-        },
-        create: {
-          name: user.name ?? "Google User",
-          email: user.email,
-          role: "seeker",
-        },
-      })
-    }
-    return true
-  } catch (err) {
-    console.error("SIGNIN ERROR:", err)
-    // ✅ Return false only on real errors, not timeouts
-    // Returning "/login" string causes NextAuth to redirect there explicitly
-    return "/login?error=DatabaseError"
-  }
-},
-
-    async jwt({ token, user, account }) {
-      // Credentials login — role is on user object directly
-      if (user) {
-        token.id = user.id
-        token.role = (user as any).role
-        return token
-      }
-
-      // Google OAuth — role not on user object, fetch from DB
-      if (account?.provider === "google") {
-        const dbUser = await prisma.user.findUnique({
-          where: { email: token.email! },
-          select: { id: true, role: true },
-        })
-        if (dbUser) {
-          token.id = dbUser.id
-          token.role = dbUser.role
+          // Retry upsert instead of find+create to avoid race condition
+          await prisma.user.upsert({
+            where: { email: user.email },
+            update: {
+              name: user.name ?? undefined,
+            },
+            create: {
+              name: user.name ?? "Google User",
+              email: user.email,
+              role: "seeker",
+            },
+          })
         }
-        return token
+        return true
+      } catch (err) {
+        console.error("SIGNIN ERROR:", err)
+        // ✅ Return false only on real errors, not timeouts
+        // Returning "/login" string causes NextAuth to redirect there explicitly
+        return "/login?error=DatabaseError"
       }
+    },
 
-      if (token.id) {
+    async jwt({ token, user, account }: any) {
+  // 🔹 1. Credentials login (user has role)
+  if (account?.provider === "credentials" && user) {
+    token.id = user.id
+    token.role = user.role
+    return token
+  }
+
+  // 🔹 2. Google login (fetch role from DB)
+  if (account?.provider === "google") {
+    const email = user?.email ?? token.email
+
+    if (!email) {
+      console.error("No email found for Google user")
+      return token
+    }
+
+    const dbUser = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true, role: true },
+    })
+
+    console.log("DB USER:", dbUser)
+
+    if (dbUser) {
+      token.id = dbUser.id
+      token.role = dbUser.role
+    }
+
+    return token
+  }
+
+  // 🔹 3. Subsequent requests (token already exists)
+  if (token.id) {
     const exists = await prisma.user.findUnique({
       where: { id: token.id as string },
       select: { id: true },
     })
-    if (!exists) {
-      // Force logout by clearing the token
-      return {}
-    }
+
+    if (!exists) return {}
   }
-      return token
-    },
-    
+
+  return token
+},
+
 
     async session({ session, token }) {
       if (token) {
