@@ -70,67 +70,55 @@ export const authOptions: NextAuthOptions = {
         if (account?.provider === "google") {
           if (!user.email) return false
 
-          // Retry upsert instead of find+create to avoid race condition
-          await prisma.user.upsert({
+          const existing = await prisma.user.findUnique({
             where: { email: user.email },
-            update: {
-              name: user.name ?? undefined,
-            },
-            create: {
-              name: user.name ?? "Google User",
-              email: user.email,
-              role: "seeker",
-            },
           })
+
+          // ✅ If new user, redirect to role selection instead of creating
+          if (!existing) {
+            // Pass email via query param so select-role page knows who to create
+            return `/select-role?email=${encodeURIComponent(user.email)}&name=${encodeURIComponent(user.name ?? "")}`
+          }
+
+          // ✅ Existing user, let them through normally
+          return true
         }
         return true
       } catch (err) {
         console.error("SIGNIN ERROR:", err)
-        // ✅ Return false only on real errors, not timeouts
-        // Returning "/login" string causes NextAuth to redirect there explicitly
         return "/login?error=DatabaseError"
       }
     },
 
     async jwt({ token, user, account }: any) {
-  // 🔹 1. Credentials login (user has role)
   if (account?.provider === "credentials" && user) {
     token.id = user.id
     token.role = user.role
     return token
   }
 
-  // 🔹 2. Google login (fetch role from DB)
   if (account?.provider === "google") {
     const email = user?.email ?? token.email
-
-    if (!email) {
-      console.error("No email found for Google user")
-      return token
-    }
+    if (!email) return token
 
     const dbUser = await prisma.user.findUnique({
       where: { email },
       select: { id: true, role: true },
     })
 
-    console.log("DB USER:", dbUser)
+    // ✅ If no DB user yet (new google user mid-flow), just return token as-is
+    if (!dbUser) return token
 
-    if (dbUser) {
-      token.id = dbUser.id
-      token.role = dbUser.role
-    }
-
+    token.id = dbUser.id
+    token.role = dbUser.role
     return token
   }
 
-  // 🔹 3. Subsequent requests (token already exists)
   if (token.id) {
     const exists = await prisma.user.findUnique({
       where: { id: token.id as string },
       select: { id: true },
     })
-
     if (!exists) return {}
   }
 
