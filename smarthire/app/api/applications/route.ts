@@ -13,9 +13,13 @@ const supabase = createClient(
 
 async function getMatchScore(resumePath: string, jobDescription: string): Promise<number | null> {
   try {
+    console.log("RAW resumePath:", resumePath)
     const { data, error } = await supabase.storage
       .from("resumes")
       .createSignedUrl(resumePath, 60)
+
+    console.log("signedUrl:", data?.signedUrl)  // ← and this
+    console.log("signedUrl error:", error)
 
     if (error || !data?.signedUrl) return null
 
@@ -64,18 +68,18 @@ export async function POST(req: NextRequest) {
 
     // Fetch job description for scoring
     const job = await prisma.job.findUnique({
-  where: { id: jobId },
-  select: { description: true, skills: true },
-})
+      where: { id: jobId },
+      select: { description: true, skills: true },
+    })
 
-// Enrich JD with skills so scorer sees the full picture
-const enrichedJD = job?.description
-  ? `${job.description}\n\nRequired Skills: ${(job.skills ?? []).join(", ")}`
-  : null
+    // Enrich JD with skills so scorer sees the full picture
+    const enrichedJD = job?.description
+      ? `${job.description}\n\nRequired Skills: ${(job.skills ?? []).join(", ")}`
+      : null
 
-const matchScore = enrichedJD
-  ? await getMatchScore(resumeUrl, enrichedJD)
-  : null
+    const matchScore = enrichedJD
+      ? await getMatchScore(resumeUrl, enrichedJD)
+      : null
 
 
     const application = await prisma.application.create({
