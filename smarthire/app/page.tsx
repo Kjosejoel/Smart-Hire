@@ -4,38 +4,33 @@ import { useState, useEffect, useRef } from 'react'
 import {
   Sparkles, ArrowRight, Brain, Search, FileText,
   TrendingUp, Users, Building2,
-  Zap, Shield, BarChart3, CheckCircle, Menu, X
+  Zap, Shield, BarChart3, CheckCircle, Menu, X, TrendingUpIcon
 } from 'lucide-react'
 
 const NAV_LINKS = ['Features', 'How It Works', 'Pricing']
 
 const STATS = [
-  { num: '50K+', label: 'Job Listings' },
-  { num: '94%', label: 'Match Rate' },
-  { num: '12K+', label: 'Hired' },
-  { num: '3.2K+', label: 'Companies' },
+  { num: '50K+', label: 'Resumes Analyzed' },
+  { num: '94%', label: 'Scoring Accuracy' },
+  { num: '12K+', label: 'Candidates Evaluated' },
+  { num: '3.2K+', label: 'Recruiters' },
 ]
 
 const SEEKER_FEATURES = [
   {
-    icon: Brain,
-    title: 'AI Resume Analysis',
-    desc: 'Get instant feedback on your resume with actionable improvements to stand out.',
-  },
-  {
     icon: Search,
-    title: 'Smart Job Matching',
-    desc: 'Our AI surfaces roles that align with your skills, experience, and career goals.',
+    title: 'Search & Filter Jobs',
+    desc: 'Browse available roles and filter them based on skills, role, and preferences.',
   },
   {
-    icon: TrendingUp,
-    title: 'Career Path Insights',
-    desc: 'Understand the trajectory of your career and what skills to build next.',
+    icon: TrendingUpIcon,
+    title: 'Real-Time Job Updates',
+    desc: 'Stay updated with newly posted roles and openings as they become available.',
   },
   {
     icon: Zap,
-    title: 'One-Click Apply',
-    desc: 'Apply to multiple jobs with a tailored cover letter generated in seconds.',
+    title: 'Easy Applications',
+    desc: 'Apply to jobs quickly using your profile and resume without repetitive steps.',
   },
 ]
 
@@ -62,10 +57,22 @@ const RECRUITER_FEATURES = [
   },
 ]
 
-const STEPS = [
-  { step: '01', title: 'Create your profile', desc: 'Sign up and let our AI parse your resume or job description in seconds.' },
-  { step: '02', title: 'Get matched instantly', desc: 'Our model analyzes thousands of signals to surface the best fits — for both sides.' },
-  { step: '03', title: 'Connect & close', desc: 'Chat, schedule interviews, and hire — all within SmartHire.' },
+  const STEPS = [
+  {
+    step: '01',
+    title: 'Upload resumes',
+    desc: 'Provide candidate resumes for analysis.',
+  },
+  {
+    step: '02',
+    title: 'AI scoring',
+    desc: 'Our system evaluates resumes based on skills and relevance.',
+  },
+  {
+    step: '03',
+    title: 'Review top candidates',
+    desc: 'Focus on the highest scoring candidates for faster decisions.',
+  },
 ]
 
 export default function LandingPage() {
@@ -165,7 +172,7 @@ export default function LandingPage() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 border border-amber-500/25 bg-amber-500/5 rounded-full px-4 py-1.5 mb-8">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-            <span className="text-xs text-amber-400 tracking-widest uppercase">AI-Powered Recruiting · Now in Beta</span>
+            <span className="text-xs text-amber-400 tracking-widest uppercase">AI-Powered Recruiting</span>
           </div>
 
           <h1 className="text-5xl md:text-7xl font-light text-zinc-100 leading-[1.05] tracking-tight mb-6">
@@ -174,7 +181,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-base md:text-lg text-zinc-500 leading-relaxed max-w-xl mx-auto mb-10">
-            SmartHire connects job seekers with their ideal role and recruiters with their perfect candidate — powered by AI that understands context, not just keywords.
+            Evaluate resumes, score candidates, and identify top talent faster using AI.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -221,10 +228,10 @@ export default function LandingPage() {
           <div className="flex flex-col items-center text-center mb-14">
             <p className="text-xs uppercase tracking-widest text-amber-500 mb-3">Features</p>
             <h2 className="text-4xl font-light text-zinc-100 tracking-tight">
-              Built for both sides of the table
+              Built for modern hiring teams
             </h2>
             <p className="mt-4 text-sm text-zinc-500 max-w-sm">
-              Whether you're looking for a role or filling one, SmartHire has tools that give you the edge.
+              Streamline candidate evaluation with AI-driven resume scoring.
             </p>
           </div>
 

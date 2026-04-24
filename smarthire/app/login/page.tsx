@@ -61,17 +61,17 @@ export default function LoginPage() {
           </div>
 
           <h1 className="text-5xl font-light text-zinc-100 leading-tight tracking-tight">
-            Find your<br />
-            <span className="italic text-amber-400">perfect</span><br />
-            career match.
+            Screen candidates with<br />
+            <span className="italic text-amber-400">AI</span><br />
+            precision
           </h1>
 
           <p className="mt-6 text-base text-zinc-500 leading-relaxed max-w-xs">
-            AI-powered recommendations tailored to your unique skills, experience, and ambitions.
+            Automatically analyze resumes, score candidates, and shortlist faster.
           </p>
 
           <div className="flex flex-wrap gap-2 mt-10">
-            {['Resume Analysis', 'Smart Matching', 'AI Recruiter'].map((f) => (
+            {['Resume Scoring', 'Candidate Ranking', 'Hiring Insights'].map((f) => (
               <span
                 key={f}
                 className="px-3 py-1.5 rounded-full border border-zinc-800 text-zinc-500 text-xs tracking-wide"
@@ -85,9 +85,9 @@ export default function LoginPage() {
         {/* Bottom: Stats */}
         <div className="relative z-10 border-t border-zinc-800 pt-8 flex gap-10">
           {[
-            { num: '50K+', label: 'Job Listings' },
-            { num: '94%', label: 'Match Rate' },
-            { num: '12K+', label: 'Hired' },
+            { num: '50K+', label: 'Resumes Analyzed' },
+            { num: '94%', label: 'Screening Accuracy' },
+            { num: '12K+', label: 'Candidates Reviewed' },
           ].map(({ num, label }) => (
             <div key={label}>
               <div className="text-2xl font-light text-amber-400">{num}</div>

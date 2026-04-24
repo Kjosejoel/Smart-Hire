@@ -30,5 +30,5 @@ export async function POST(req: Request) {
   console.log("Sending email to:", email)
   sendResetEmail(email, token).catch(console.error)
 
-  return NextResponse.json({ message: "Reset link sent" })
+  return NextResponse.json({ message: "If email exists, link sent" })
 }

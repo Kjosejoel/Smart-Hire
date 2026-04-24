@@ -43,6 +43,10 @@ function RegisterPageInner() {
       setError('All fields are required')
       return
     }
+    if (formData.password.length < 8) {
+      setError('Password length must be equal or more than 8')
+      return
+    }
 
     setLoading(true)
 
@@ -97,13 +101,13 @@ function RegisterPageInner() {
           </div>
 
           <h1 className="text-5xl font-light text-zinc-100 leading-tight tracking-tight">
-            Start your<br />
-            <span className="italic text-amber-400">journey</span><br />
-            today.
+            Build your<br />
+            <span className="italic text-amber-400">hiring</span><br />
+            workflow
           </h1>
 
           <p className="mt-6 text-base text-zinc-500 leading-relaxed max-w-xs">
-            Join thousands of professionals who found their next opportunity — or their next great hire — with SmartHire.
+            Use AI-powered resume scoring to evaluate candidates and streamline your hiring process.
           </p>
 
           {/* Role cards */}
@@ -113,9 +117,9 @@ function RegisterPageInner() {
                 <Search size={14} className="text-amber-400" />
               </div>
               <div>
-                <div className="text-xl font-semibold text-zinc-200 mb-1">Job Seekers</div>
+                <div className="text-xl font-semibold text-zinc-200 mb-1">Candidates</div>
                 <div className="text-base text-zinc-500 leading-relaxed">
-                  Get AI-matched to roles that fit your skills. Apply in seconds.
+                  Upload resumes and receive structured feedback and scoring.
                 </div>
               </div>
             </div>
@@ -127,7 +131,7 @@ function RegisterPageInner() {
               <div>
                 <div className="text-xl font-semibold text-zinc-200 mb-1">Recruiters</div>
                 <div className="text-base text-zinc-500 leading-relaxed">
-                  Source, screen, and hire top talent faster with AI ranking.
+                  Evaluate resumes quickly with AI scoring and prioritize the best candidates.
                 </div>
               </div>
             </div>
@@ -137,9 +141,9 @@ function RegisterPageInner() {
         {/* Bottom: Stats */}
         <div className="relative z-10 border-t border-zinc-800 pt-8 flex gap-10">
           {[
-            { num: '50K+', label: 'Job Listings' },
-            { num: '94%', label: 'Match Rate' },
-            { num: '12K+', label: 'Hired' },
+            { num: '50K+', label: 'Resumes Analyzed' },
+            { num: '94%', label: 'Scoring Accuracy' },
+            { num: '12K+', label: 'Candidates Reviewed' },
           ].map(({ num, label }) => (
             <div key={label}>
               <div className="text-2xl font-light text-amber-400">{num}</div>
